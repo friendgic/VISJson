@@ -44,8 +44,44 @@ const example = `{
   "key2":"abc",
   "key3":{
     "subKey1":123321,
-    "subKey2":"22222"
-  }    
+    "subKey2":"22222",
+    "more":{
+      "ABC":"AAA",
+      "BCD":[1,2,3]
+    }
+  },
+  "key4":{
+    "subKey1":123321,
+    "subKey2":"22222",
+    "more":{
+      "ABC":"AAA",
+      "BCD":[1,2,3]
+    }
+  },
+  "key5":{
+    "subKey1":123321,
+    "subKey2":"22222",
+    "more":{
+      "ABC":"AAA",
+      "BCD":[1,2,3]
+    }
+  } ,
+  "key6":{
+    "subKey1":123321,
+    "subKey2":"22222",
+    "more":{
+      "ABC":"AAA",
+      "BCD":[1,2,3]
+    }
+  }  ,
+  "key7":{
+    "subKey1":123321,
+    "subKey2":"22222",
+    "more":{
+      "ABC":"AAA",
+      "BCD":[1,2,3]
+    }
+  }  
 }
 `;
 
@@ -54,91 +90,16 @@ function App() {
   const [toolBarTabSelect, setToolBarTabSelect] = React.useState(0);
   const [drawerRightOpen, setDrawerRightOpen] = React.useState(true);
   const [code, setCode] = React.useState(example)
-  const [nodes, setNodes] = React.useState({})
+  const [nodes, setNodes] = React.useState([]) 
 
   const handle_toolBarTabSelect = (event, newValue) => {
     setToolBarTabSelect(newValue);
   };
 
-  const node_marginLeft = 50;
-  const node_marginTop = 50;
-  const node_width = 200;
-  const node_height = 100; 
-
-  const convertCode = (newCode) => {
-    let counter = 0;
-    setCode(newCode);
-    try {
-      let orijson=JSON.parse(code);
-      let allnodes = []
-
-      let deep = 0
-      const Scan = (node,pid,deep)=>{
-        const keys = Object.keys(node)
-        keys.forEach((ele,i) => {
-          const val = node[ele]
-          
-          let pack = {
-            name:ele,
-            id:counter ++,
-            inid:i,
-            type:typeof(val),
-            val:val,
-            pid:pid,
-            deep:deep, 
-            x:deep*node_width+node_marginLeft,
-            y:i*node_height+node_marginTop
-            
-          }
-          allnodes.push(pack)
-
-          if(pack.type === 'object'){
-            Scan(pack.val,pack.id,deep+1)
-          } 
-        })
-      } 
-      
-      Scan(orijson,-1,0); //-1 是指父亲为空， 0是深度初始值
-      console.log(allnodes)
-      setNodes(allnodes);
-
-      // let root = {}
-      // const InitScan = (node,root,parent,deep) => {
-        
-      //   const keys = Object.keys(node)
-      //   keys.forEach((element,index) => {
-      //     const value = node[element]
-      //     //console.log(element + ":" + value)    //"key1":123
-          
-      //     if (typeof (value) === 'object') {
-      //       let newRoot = {}
-      //       InitScan(value,newRoot,root,deep+1)
-    
-      //       root[element] = {
-      //         child:newRoot ,
-      //         type:'object'
-      //       } 
-      //     }else{
-      //       root[element] = {
-      //         child:value ,
-      //         type:'normal'
-      //       } 
-      //     }
-      //     root[element]['deep']=deep
-      //     root[element]['id'] = counter++ 
-      //   });
-      // }
-      // InitScan(orijson,root,0,0)
-      //console.log(root) 
-      //setNodes(root)
-    } catch (e) {
-      alert(e);
-    }
-  }
 
   const shareData = {
-    code: code, setCode: setCode, convertCode : convertCode,
-    nodes: nodes, setNodes: setNodes,
+    code: code, setCode: setCode, 
+    nodes: nodes, setNodes: setNodes, 
     drawerRightOpen:drawerRightOpen, setDrawerRightOpen:setDrawerRightOpen
   }
  
