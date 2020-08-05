@@ -1,24 +1,14 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
-import AppBar from '@material-ui/core/AppBar';
-import clsx from 'clsx';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import Typography from '@material-ui/core/Typography';
-import { fade, makeStyles } from '@material-ui/core/styles';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import { CssBaseline, Toolbar, IconButton, Typography, Tabs, Tab, AppBar } from '@material-ui/core';
 
-import JsonPage from './JsonPage'
-import GraphPage from './GraphPage'
-import TemplatePage from './TemplatePage'
-import TestPage from './TestPage'
-import Slide from '@material-ui/core/Slide';
+import { Menu, ArrowLeft, Code } from '@material-ui/icons';
+import { makeStyles } from '@material-ui/core/styles';
 
-import { nodeUI } from './config'
+import JsonPage from './Pages/JsonPage';
+import GraphPage from './Pages/GraphPage';
+import TemplatePage from './Pages/TemplatePage';
+
+import { nodeUI } from './config';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,67 +31,39 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const example = `{
-  "root":{}
-}`
-const example2 = `{
-  "key1":123,
-  "key2":"abc",
-  "key3":{
-    "subKey1":123321,
-    "subKey2":"22222",
-    "more":{
-      "ABC":"AAA",
-      "BCD":[1,2,3]
-    }
-  },
-  "key4":{
-    "subKey1":123321,
-    "subKey2":"22222",
-    "more":{
-      "ABC":"AAA",
-      "BCD":[1,2,3]
-    }
-  },
-  "key5":{
-    "subKey1":123321,
-    "subKey2":"22222",
-    "more":{
-      "ABC":"AAA",
-      "BCD":[1,2,3]
-    }
-  } ,
-  "key6":{
-    "subKey1":123321,
-    "subKey2":"22222",
-    "more":{
-      "ABC":"AAA",
-      "BCD":[1,2,3]
-    }
-  }  ,
-  "key7":{
-    "subKey1":123321,
-    "subKey2":"22222",
-    "more":{
-      "ABC":"AAA",
-      "BCD":[1,2,3]
-    }
-  }  
+  "root":[]
+}`;
+
+const temp = [{
+  show: 'Name',
+  label: '+Person',
+  value: `{
+  "Name":"",
+  "Age":""
 }
-`;
+`,
+  obj: {
+    "Name": "",
+    "Age": ""
+  },
+  hasError: false
+}];
 
 function App() {
   const classes = useStyles();
-  const [toolBarTabSelect, setToolBarTabSelect] = React.useState(0);
-  const [drawerRightOpen, setDrawerRightOpen] = React.useState(true);
-  const [code, setCode] = React.useState(example)
-  const [nodes, setNodes] = React.useState([])
+  let [toolBarTabSelect, setToolBarTabSelect] = React.useState(0);
+  let [drawerRightOpen, setDrawerRightOpen] = React.useState(true);
+  let [code, setCode] = React.useState(example);
+  let [template, setTemplate] = React.useState(temp);
+  let [nodes, setNodes] = React.useState([]);
 
   const convertCode = (newCode, updateSet) => {
     let counter = 0;
+    code = newCode;
     setCode(newCode);
     try {
       let orijson = JSON.parse(newCode);
-      let allnodes = []
+      let allnodes = [];
 
       const node_marginLeft = nodeUI.marginLeft;
       const node_marginTop = nodeUI.marginTop;
@@ -111,9 +73,9 @@ function App() {
       const refs = new Map();
 
       const Scan = (node, pid, deep, his) => {
-        const keys = Object.keys(node)
+        const keys = Object.keys(node);
         keys.forEach((ele, i) => {
-          const val = node[ele]
+          const val = node[ele];
 
           let pack = {
             name: ele,
@@ -129,68 +91,90 @@ function App() {
             x: deep * node_width + node_marginLeft,
             y: i * node_height + node_marginTop,
             obj_open: false
-          }
+          };
 
-          refs.set(pack.his, pack)
-          allnodes.push(pack)
+          refs.set(pack.his, pack);
+          allnodes.push(pack);
 
           if (pack.type === 'object' || pack.type === 'array') {
             if (pack.val !== null)
-              Scan(pack.val, pack.id, deep + 1, his + i + '_')
+              Scan(pack.val, pack.id, deep + 1, his + i + '_');
           }
-        })
-      }
+        });
+      };
 
       Scan(orijson, -1, 0, ''); //-1 是指父亲为空， 0是深度初始值,最后一个是树的位置
-      console.log(allnodes)
+      console.log(allnodes);
       if (updateSet) {
         for (let i = 0; i < nodes.length; i++) {
-          let node = nodes[i]
-          const newNode = refs.get(node.his)
+          let node = nodes[i];
+          const newNode = refs.get(node.his);
           if (newNode) {
 
             Object.keys(node).forEach((key, i) => {
               if (updateSet[key]) {
                 //保留老的数据
-                newNode[key] = node[key]
+                newNode[key] = node[key];
               } else {
               }
-            })
+            });
           }
         }
       }
-      setNodes(allnodes)
+      nodes = allnodes
+      setNodes(allnodes);
 
     } catch (e) {
-      console.log(e)
+      console.log(e);
       alert(e);
+    }
+  };
+
+  function setObject(obj, key, value) {
+    if (Array.isArray(obj)) {
+      obj.push(value)
+    } else {
+      obj[key] = value
     }
   }
 
   const convertJSON = (changedNode) => {
-    let pack = {}
+    console.log(changedNode);
+    let pack = {};
     let refs = new Map();
-    refs.set(-1, pack)
+    refs.set(-1, pack);
+    let hasNull = false;
+
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
-      const parent = refs.get(node.pid)
+      if (node.val === null) continue;
+      const parent = refs.get(node.pid);
+      if (parent === undefined) continue;
       if (typeof (node.val) !== 'object') {
-        parent[node.name] = node.val
+        setObject(parent, node.name, node.val);
+      } else if (Array.isArray(node.val)) {
+        setObject(parent, node.name, []);
+        refs.set(node.id, parent[node.name]);
       } else {
-        parent[node.name] = {}
-        refs.set(node.id, parent[node.name])
+        const obj = {}
+        setObject(parent, node.name, obj);
+        refs.set(node.id, obj);
       }
     }
 
-    console.log(pack)
+    console.log(pack);
     if (changedNode != null) {
-      const parent = refs.get(changedNode.pid)
-      parent[changedNode.name] = changedNode.val
-    }
-    const str = JSON.stringify(pack, null, '  ')
-    convertCode(str, { x: true, y: true, obj_open: true })
+      const parent = refs.get(changedNode.pid);
+      if (changedNode.val != null)
+        parent[changedNode.name] = changedNode.val;
+      else {
 
-  }
+      }
+    }
+    const str = JSON.stringify(pack, null, '  ');
+    convertCode(str, { x: true, y: true, obj_open: true });
+
+  };
 
   const handle_toolBarTabSelect = (event, newValue) => {
     setToolBarTabSelect(newValue);
@@ -200,9 +184,11 @@ function App() {
   const shareData = {
     code: code, setCode: setCode,
     nodes: nodes, setNodes: setNodes,
+    template: template, setTemplate: setTemplate,
     drawerRightOpen: drawerRightOpen, setDrawerRightOpen: setDrawerRightOpen,
-    convertCode, convertJSON
-  }
+    convertCode, convertJSON,
+
+  };
 
   return (
     <div className={classes.root}>
@@ -212,7 +198,7 @@ function App() {
       <AppBar position="static">
         <Toolbar>
           <IconButton edge="start" className={classes.menuButton} color="inherit">
-            <MenuIcon />
+            <Menu />
           </IconButton>
           <Tabs value={toolBarTabSelect} onChange={handle_toolBarTabSelect} >
             <Tab label="JSON" />
@@ -225,8 +211,8 @@ function App() {
             </Typography>
           }
           {drawerRightOpen !== true &&
-            <IconButton edge="end" color="inherit" onClick={() => { setDrawerRightOpen(true) }}>
-              <ChevronLeftIcon />
+            <IconButton edge="end" color="inherit" onClick={() => { setDrawerRightOpen(true); }}>
+              <ArrowLeft />
             </IconButton>
           }
         </Toolbar>

@@ -5,25 +5,25 @@ import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-regex";
 
-import PropertiesDrawer from './PropertiesDrawer'
+import PropertiesDrawer from '../PropertiesDrawer';
 import Button from '@material-ui/core/Button';
 import "./prism.css";
 
-import {nodeUI} from './config'
+import { nodeUI } from '../config';
 
 function JsonPage(props) {
   const code = props.shareData.code;
-  const setCode = props.shareData.setCode; 
-  const convertCode = props.shareData.convertCode; 
-  
+  const setCode = props.shareData.setCode;
+  const convertCode = props.shareData.convertCode;
+
   const myProperties = (
-    <div>  
-      <Button variant="outlined" onClick={()=>{
-        convertCode(code)
-        }}>Save and Convert</Button>
+    <div>
+      <Button variant="outlined" onClick={() => {
+        convertCode(code);
+      }}>Save and Convert</Button>
     </div>
-  )
-   
+  );
+
   return (
     <div>
       {console.log("json page")}
@@ -33,9 +33,9 @@ function JsonPage(props) {
         highlight={code => highlight(code, languages.js)}
         padding={10}
       />
-    <PropertiesDrawer shareData = {props.shareData} content = {myProperties}></PropertiesDrawer>
+      <PropertiesDrawer shareData={props.shareData} content={myProperties}></PropertiesDrawer>
     </div>
-  )
+  );
 }
 
 
